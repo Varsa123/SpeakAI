@@ -6,9 +6,8 @@ import { analyzeSpeech, savePractice } from "../../services/api";
 function Recorder() {
   const recognitionRef = useRef(null);
   const startTimeRef = useRef(null);
-
-  // Stores only final recognized text
   const finalTranscriptRef = useRef("");
+  const analyzedRef = useRef(false);
 
   const {
     transcript,
@@ -31,19 +30,18 @@ function Recorder() {
 
     const recognition = new SpeechRecognition();
 
-    // Better for Android
+    recognition.lang = "en-US";
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
-      console.log("Recording Started...");
+      console.log("Recording Started");
     };
 
     recognition.onresult = (event) => {
       let interimTranscript = "";
 
-      // Process ONLY new results
       for (
         let i = event.resultIndex;
         i < event.results.length;
@@ -69,16 +67,24 @@ function Recorder() {
     };
 
     recognition.onend = () => {
-      console.log("Recording Ended");
+      console.log("Recognition Ended");
+
       setIsRecording(false);
+
+      if (!analyzedRef.current) {
+        setTimeout(() => {
+          analyzeCurrentSpeech();
+        }, 500);
+      }
     };
 
     recognitionRef.current = recognition;
-  }, [setTranscript, setAnalysis]);
+  }, []);
 
   const startRecording = () => {
     if (!recognitionRef.current) return;
 
+    analyzedRef.current = false;
     finalTranscriptRef.current = "";
 
     setTranscript("");
@@ -91,16 +97,24 @@ function Recorder() {
     setIsRecording(true);
   };
 
-  const stopRecording = async () => {
+  const stopRecording = () => {
     if (!recognitionRef.current) return;
 
     recognitionRef.current.stop();
+  };
 
-    setIsRecording(false);
+  const analyzeCurrentSpeech = async () => {
+    if (analyzedRef.current) return;
 
-    const finalTranscript = finalTranscriptRef.current.trim();
+    analyzedRef.current = true;
 
-    if (!finalTranscript) return;
+    const finalTranscript =
+      finalTranscriptRef.current.trim();
+
+    if (!finalTranscript) {
+      console.log("No transcript found.");
+      return;
+    }
 
     const duration = Math.max(
       1,
@@ -109,14 +123,18 @@ function Recorder() {
       )
     );
 
-    const words = finalTranscript.split(/\s+/).length;
+    const words =
+      finalTranscript.split(/\s+/).length;
 
-    const wpm = Math.round((words / duration) * 60);
+    const wpm = Math.round(
+      (words / duration) * 60
+    );
 
     try {
       setLoading(true);
 
-      const response = await analyzeSpeech(finalTranscript);
+      const response =
+        await analyzeSpeech(finalTranscript);
 
       console.log(response);
 
@@ -124,19 +142,15 @@ function Recorder() {
 
       await savePractice({
         transcript: finalTranscript,
-
         grammar: response.data.grammar,
         fluency: response.data.fluency,
         vocabulary: response.data.vocabulary,
         confidence: response.data.confidence,
-
         feedback: response.data.feedback,
-
         duration,
         words,
         wpm,
       });
-
     } catch (err) {
       console.log(err);
 
@@ -151,13 +165,11 @@ function Recorder() {
 
   return (
     <div className="rounded-2xl bg-slate-900 p-8">
-
       <h2 className="mb-6 text-3xl font-bold text-white">
         Speaking Practice
       </h2>
 
       <div className="flex justify-center">
-
         {!isRecording ? (
           <button
             onClick={startRecording}
@@ -173,27 +185,23 @@ function Recorder() {
             <FaStop />
           </button>
         )}
-
       </div>
 
       <p className="mt-5 text-center text-slate-400">
-
         {isRecording
           ? "🎤 Listening... Speak now"
           : "Click the microphone to start speaking"}
-
       </p>
 
       <div className="mt-8 rounded-xl bg-slate-800 p-5">
-
         <h3 className="mb-3 text-xl font-semibold text-white">
           Transcript
         </h3>
 
         <p className="min-h-[120px] whitespace-pre-wrap text-slate-300">
-          {transcript || "Your speech will appear here..."}
+          {transcript ||
+            "Your speech will appear here..."}
         </p>
-
       </div>
 
       {loading && (
@@ -201,7 +209,6 @@ function Recorder() {
           🤖 AI is analyzing your speech...
         </div>
       )}
-
     </div>
   );
 }
