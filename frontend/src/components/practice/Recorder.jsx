@@ -7,6 +7,9 @@ function Recorder() {
   const recognitionRef = useRef(null);
   const startTimeRef = useRef(null);
 
+  // Stores only final recognized text
+  const finalTranscriptRef = useRef("");
+
   const {
     transcript,
     setTranscript,
@@ -28,84 +31,111 @@ function Recorder() {
 
     const recognition = new SpeechRecognition();
 
-    recognition.continuous = true;
+    // Better for Android
+    recognition.continuous = false;
     recognition.interimResults = true;
     recognition.lang = "en-US";
 
-    recognition.onresult = (event) => {
-      let finalTranscript = "";
-
-      for (let i = 0; i < event.results.length; i++) {
-        finalTranscript += event.results[i][0].transcript + " ";
-      }
-
-      setTranscript(finalTranscript.trim());
+    recognition.onstart = () => {
+      console.log("Recording Started...");
     };
 
-    recognition.onend = () => {
-      setIsRecording(false);
+    recognition.onresult = (event) => {
+      let interimTranscript = "";
+
+      // Process ONLY new results
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+        const text = event.results[i][0].transcript;
+
+        if (event.results[i].isFinal) {
+          finalTranscriptRef.current += text + " ";
+        } else {
+          interimTranscript += text;
+        }
+      }
+
+      setTranscript(
+        (finalTranscriptRef.current + interimTranscript).trim()
+      );
     };
 
     recognition.onerror = (event) => {
-      console.log(event.error);
+      console.log("Speech Error:", event.error);
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      console.log("Recording Ended");
       setIsRecording(false);
     };
 
     recognitionRef.current = recognition;
-  }, [setTranscript]);
+  }, [setTranscript, setAnalysis]);
 
   const startRecording = () => {
-  setTranscript("");
-  setAnalysis(null);
+    if (!recognitionRef.current) return;
 
-  // Save recording start time
-  startTimeRef.current = Date.now();
+    finalTranscriptRef.current = "";
 
-  recognitionRef.current.start();
-  setIsRecording(true);
-};
+    setTranscript("");
+    setAnalysis(null);
+
+    startTimeRef.current = Date.now();
+
+    recognitionRef.current.start();
+
+    setIsRecording(true);
+  };
 
   const stopRecording = async () => {
+    if (!recognitionRef.current) return;
+
     recognitionRef.current.stop();
+
     setIsRecording(false);
 
-    if (!transcript.trim()) return;
-    const duration = Math.round(
-  (Date.now() - startTimeRef.current) / 1000
-);
+    const finalTranscript = finalTranscriptRef.current.trim();
 
-const words = transcript.trim().split(/\s+/).length;
+    if (!finalTranscript) return;
 
-const wpm =
-  duration > 0
-    ? Math.round((words / duration) * 60)
-    : 0;
+    const duration = Math.max(
+      1,
+      Math.round(
+        (Date.now() - startTimeRef.current) / 1000
+      )
+    );
+
+    const words = finalTranscript.split(/\s+/).length;
+
+    const wpm = Math.round((words / duration) * 60);
 
     try {
       setLoading(true);
 
-      const response = await analyzeSpeech(transcript);
+      const response = await analyzeSpeech(finalTranscript);
 
-console.log(response);
+      console.log(response);
 
-setAnalysis(response.data);
+      setAnalysis(response.data);
 
-const result = await savePractice({
-  transcript,
-  grammar: response.data.grammar,
-  fluency: response.data.fluency,
-  vocabulary: response.data.vocabulary,
-  confidence: response.data.confidence,
-  feedback: response.data.feedback,
-  duration,
-  words,
-  wpm,
-});
-if (result.newBadges?.length) {
-  alert(
-    `🎉 Congratulations!\n\n${result.newBadges.join("\n")}`
-  );
-}
+      await savePractice({
+        transcript: finalTranscript,
+
+        grammar: response.data.grammar,
+        fluency: response.data.fluency,
+        vocabulary: response.data.vocabulary,
+        confidence: response.data.confidence,
+
+        feedback: response.data.feedback,
+
+        duration,
+        words,
+        wpm,
+      });
 
     } catch (err) {
       console.log(err);
@@ -114,7 +144,6 @@ if (result.newBadges?.length) {
         err.response?.data?.message ||
           "AI analysis failed."
       );
-
     } finally {
       setLoading(false);
     }
@@ -150,7 +179,7 @@ if (result.newBadges?.length) {
       <p className="mt-5 text-center text-slate-400">
 
         {isRecording
-          ? "Listening... Speak now 🎤"
+          ? "🎤 Listening... Speak now"
           : "Click the microphone to start speaking"}
 
       </p>
@@ -161,7 +190,7 @@ if (result.newBadges?.length) {
           Transcript
         </h3>
 
-        <p className="min-h-[80px] text-slate-300">
+        <p className="min-h-[120px] whitespace-pre-wrap text-slate-300">
           {transcript || "Your speech will appear here..."}
         </p>
 
