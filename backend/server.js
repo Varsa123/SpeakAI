@@ -27,7 +27,7 @@ const app = express();
 // ==============================
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://your-app.vercel.app", // Replace after frontend deployment
+  "https://speak-ai-drab.vercel.app", // Replace after frontend deployment
 ];
 
 app.use(
