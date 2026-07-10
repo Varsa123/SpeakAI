@@ -10,6 +10,8 @@ import {
   getDashboard,
   getDailyChallenge,
 } from "../../services/api";
+import Achievements from "../../components/dashboard/Achievements";
+import QuickActions from "../../components/dashboard/QuickActions";
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -101,6 +103,8 @@ function Dashboard() {
       <div className="mt-6 md:mt-8">
         <ProgressChart chart={stats.chart} />
       </div>
+      <Achievements />
+      <QuickActions />
       </AnimatedPage>
     </DashboardLayout>
   );
