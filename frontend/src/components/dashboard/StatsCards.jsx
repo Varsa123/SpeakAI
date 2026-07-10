@@ -1,36 +1,40 @@
 function Card({ title, value }) {
   return (
-    <div className="rounded-2xl bg-slate-900 p-6 shadow-lg">
-      <h3 className="text-slate-400">{title}</h3>
+    <div className="rounded-2xl bg-slate-900 p-5 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-indigo-500/20">
 
-      <p className="mt-3 text-4xl font-bold text-indigo-400">
+      <h3 className="text-sm text-slate-400 sm:text-base">
+        {title}
+      </h3>
+
+      <p className="mt-3 break-words text-2xl font-bold text-indigo-400 sm:text-3xl lg:text-4xl">
         {value}
       </p>
+
     </div>
   );
 }
 
 function StatsCards({ stats }) {
   return (
-    <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
 
       <Card
-        title="Grammar"
+        title="📖 Grammar"
         value={`${stats.averageGrammar.toFixed(2)}%`}
       />
 
       <Card
-        title="Fluency"
+        title="🗣️ Fluency"
         value={`${stats.averageFluency.toFixed(2)}%`}
       />
 
       <Card
-        title="Vocabulary"
+        title="📚 Vocabulary"
         value={`${stats.averageVocabulary.toFixed(2)}%`}
       />
 
       <Card
-        title="Confidence"
+        title="💪 Confidence"
         value={`${stats.averageConfidence.toFixed(2)}%`}
       />
 

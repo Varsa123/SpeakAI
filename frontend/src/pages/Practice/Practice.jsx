@@ -7,22 +7,26 @@ import FeedbackCard from "../../components/practice/FeedbackCard";
 function Practice() {
   return (
     <DashboardLayout>
+
       <PracticeHeader />
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
 
-        {/* Left Side */}
-        <div>
+        {/* Recorder */}
+
+        <section className="w-full">
           <Recorder />
-        </div>
+        </section>
 
-        {/* Right Side */}
-        <div className="space-y-6">
+        {/* Analysis */}
+
+        <section className="space-y-6">
           <ScoreCard />
           <FeedbackCard />
-        </div>
+        </section>
 
       </div>
+
     </DashboardLayout>
   );
 }

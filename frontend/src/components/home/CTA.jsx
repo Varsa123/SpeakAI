@@ -1,7 +1,10 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
 
 function CTA() {
+  const { user } = useAuth();
   return (
     <section className="py-24 bg-slate-950">
       <div className="mx-auto max-w-5xl rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-indigo-600/20 to-cyan-500/20 p-12 text-center">
@@ -15,11 +18,13 @@ function CTA() {
         </p>
 
         <div className="mt-10 flex justify-center">
-          <Button>
-            Get Started Free
-            <ArrowRight size={18} />
-          </Button>
-        </div>
+  <Link to={user ? "/practice" : "/register"}>
+    <Button>
+      Get Started Free
+      <ArrowRight size={18} />
+    </Button>
+  </Link>
+</div>
       </div>
     </section>
   );

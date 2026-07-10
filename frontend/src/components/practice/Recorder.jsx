@@ -18,13 +18,34 @@ function Recorder() {
   } = usePractice();
 
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [error, setError] = useState("");
 
+  // Recording Timer
+  useEffect(() => {
+    let interval;
+
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  // Speech Recognition
   useEffect(() => {
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Speech Recognition is not supported in this browser.");
+      setError(
+        "Speech Recognition is not supported in this browser."
+      );
       return;
     }
 
@@ -62,13 +83,15 @@ function Recorder() {
     };
 
     recognition.onerror = (event) => {
-      console.log("Speech Error:", event.error);
+      console.log(event.error);
       setIsRecording(false);
+
+      if (event.error !== "no-speech") {
+        setError("Speech recognition failed.");
+      }
     };
 
     recognition.onend = () => {
-      console.log("Recognition Ended");
-
       setIsRecording(false);
 
       if (!analyzedRef.current) {
@@ -84,11 +107,16 @@ function Recorder() {
   const startRecording = () => {
     if (!recognitionRef.current) return;
 
+    if (loading || isRecording) return;
+
     analyzedRef.current = false;
     finalTranscriptRef.current = "";
 
     setTranscript("");
     setAnalysis(null);
+
+    setRecordingTime(0);
+    setError("");
 
     startTimeRef.current = Date.now();
 
@@ -112,7 +140,7 @@ function Recorder() {
       finalTranscriptRef.current.trim();
 
     if (!finalTranscript) {
-      console.log("No transcript found.");
+      setError("No speech detected.");
       return;
     }
 
@@ -136,8 +164,6 @@ function Recorder() {
       const response =
         await analyzeSpeech(finalTranscript);
 
-      console.log(response);
-
       setAnalysis(response.data);
 
       await savePractice({
@@ -154,7 +180,7 @@ function Recorder() {
     } catch (err) {
       console.log(err);
 
-      alert(
+      setError(
         err.response?.data?.message ||
           "AI analysis failed."
       );
@@ -164,51 +190,77 @@ function Recorder() {
   };
 
   return (
-    <div className="rounded-2xl bg-slate-900 p-8">
-      <h2 className="mb-6 text-3xl font-bold text-white">
-        Speaking Practice
+    <div className="rounded-3xl bg-slate-900 p-6 shadow-xl sm:p-8">
+
+      <h2 className="mb-6 text-2xl font-bold text-white sm:text-3xl">
+        🎤 Speaking Practice
       </h2>
 
       <div className="flex justify-center">
+
         {!isRecording ? (
           <button
+            disabled={loading}
             onClick={startRecording}
-            className="flex h-24 w-24 items-center justify-center rounded-full bg-indigo-600 text-4xl text-white transition hover:scale-105 hover:bg-indigo-700"
+            className={`flex h-24 w-24 items-center justify-center rounded-full text-4xl text-white transition-all duration-300
+              ${
+                loading
+                  ? "cursor-not-allowed bg-slate-600"
+                  : "bg-indigo-600 hover:scale-110 hover:bg-indigo-700"
+              }`}
           >
             <FaMicrophone />
           </button>
         ) : (
           <button
             onClick={stopRecording}
-            className="flex h-24 w-24 animate-pulse items-center justify-center rounded-full bg-red-600 text-4xl text-white transition hover:scale-105 hover:bg-red-700"
+            className="flex h-24 w-24 animate-pulse items-center justify-center rounded-full bg-red-600 text-4xl text-white transition hover:scale-110 hover:bg-red-700"
           >
             <FaStop />
           </button>
         )}
+
       </div>
 
       <p className="mt-5 text-center text-slate-400">
+
         {isRecording
-          ? "🎤 Listening... Speak now"
+          ? `🎙 Recording... ${recordingTime}s`
           : "Click the microphone to start speaking"}
+
       </p>
 
-      <div className="mt-8 rounded-xl bg-slate-800 p-5">
+      <div className="mt-8 rounded-2xl bg-slate-800 p-5 shadow-inner">
+
         <h3 className="mb-3 text-xl font-semibold text-white">
           Transcript
         </h3>
 
-        <p className="min-h-[120px] whitespace-pre-wrap text-slate-300">
-          {transcript ||
-            "Your speech will appear here..."}
-        </p>
+        <div className="min-h-[180px] max-h-[250px] overflow-y-auto rounded-lg bg-slate-900 p-4">
+
+          <p className="whitespace-pre-wrap text-slate-300">
+
+            {transcript ||
+              "Your speech will appear here..."}
+
+          </p>
+
+        </div>
+
       </div>
 
-      {loading && (
-        <div className="mt-6 rounded-lg bg-indigo-500/20 p-4 text-center text-indigo-300">
-          🤖 AI is analyzing your speech...
+      {error && (
+        <div className="mt-6 rounded-xl bg-red-500/20 p-4 text-center text-red-300">
+          {error}
         </div>
       )}
+
+      {loading && (
+        <div className="mt-6 rounded-xl bg-indigo-500/20 p-4 text-center text-indigo-300 animate-pulse">
+          🤖 AI is analyzing your speech... Please wait.
+        </div>
+      )}
+
     </div>
   );
 }
