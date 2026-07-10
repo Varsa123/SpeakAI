@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { getLeaderboard } from "../../services/api";
+import AnimatedPage from "../../components/common/AnimatedPage";
 
 function Leaderboard() {
   const [users, setUsers] = useState([]);
@@ -20,6 +21,7 @@ function Leaderboard() {
 
   return (
     <DashboardLayout>
+      <AnimatedPage>
       <h1 className="mb-8 text-4xl font-bold text-white">
         🏆 Leaderboard
       </h1>
@@ -75,6 +77,7 @@ function Leaderboard() {
           </div>
         ))}
       </div>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

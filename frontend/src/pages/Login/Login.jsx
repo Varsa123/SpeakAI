@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../../services/api";
+import { loginUser } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
+
 
 function Login() {
   const navigate = useNavigate();
@@ -29,9 +31,10 @@ function Login() {
     setError("");
 
     try {
-      const res = await API.post("/auth/login", form);
+      const res = await loginUser(form);
 
-      login(res.data.user, res.data.token);
+      login(res.user, res.token);
+      toast.success("Welcome back!");
 
       navigate("/dashboard");
     } catch (err) {

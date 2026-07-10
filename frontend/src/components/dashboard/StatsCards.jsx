@@ -6,7 +6,7 @@ function Card({ title, value }) {
         {title}
       </h3>
 
-      <p className="mt-3 break-words text-2xl font-bold text-indigo-400 sm:text-3xl lg:text-4xl">
+      <p className="mt-2 break-words text-2xl font-bold text-indigo-400 sm:text-3xl lg:text-4xl">
         {value}
       </p>
 
@@ -16,7 +16,7 @@ function Card({ title, value }) {
 
 function StatsCards({ stats }) {
   return (
-    <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
       <Card
         title="📖 Grammar"

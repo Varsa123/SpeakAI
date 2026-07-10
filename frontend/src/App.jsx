@@ -1,91 +1,99 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
-import Home from "./pages/Home/Home";
-import Login from "./pages/Login/Login";
-import Register from "./pages/Register/Register";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import Practice from "./pages/Practice/Practice";
-import Profile from "./pages/Profile/Profile";
-import History from "./pages/History/History";
-import Settings from "./pages/Settings/Settings";
-import Conversation from "./pages/Conversation/Conversation";
-import Leaderboard from "./pages/Leaderboard/Leaderboard";
-
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Loader from "./components/common/Loader";
+
+// Lazy Loaded Pages
+const Home = lazy(() => import("./pages/Home/Home"));
+const Login = lazy(() => import("./pages/Login/Login"));
+const Register = lazy(() => import("./pages/Register/Register"));
+const Dashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
+const Practice = lazy(() => import("./pages/Practice/Practice"));
+const Profile = lazy(() => import("./pages/Profile/Profile"));
+const History = lazy(() => import("./pages/History/History"));
+const Settings = lazy(() => import("./pages/Settings/Settings"));
+const Conversation = lazy(() =>
+  import("./pages/Conversation/Conversation")
+);
+const Leaderboard = lazy(() =>
+  import("./pages/Leaderboard/Leaderboard")
+);
 
 function App() {
   return (
-    <Routes>
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        <Route path="/" element={<Home />} />
 
-      <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
 
-      <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/practice"
+          element={
+            <ProtectedRoute>
+              <Practice />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/practice"
-        element={
-          <ProtectedRoute>
-            <Practice />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/history"
-        element={
-          <ProtectedRoute>
-            <History />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/conversation"
+          element={
+            <ProtectedRoute>
+              <Conversation />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-  path="/conversation"
-  element={
-    <ProtectedRoute>
-      <Conversation />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/leaderboard"
-  element={
-    <ProtectedRoute>
-      <Leaderboard />
-    </ProtectedRoute>
-  }
-/>
-
-    </Routes>
+        <Route
+          path="/leaderboard"
+          element={
+            <ProtectedRoute>
+              <Leaderboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
 

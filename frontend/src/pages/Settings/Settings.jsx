@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { changePassword } from "../../services/api";
+import AnimatedPage from "../../components/common/AnimatedPage";
 
 function Settings() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -34,9 +35,10 @@ function Settings() {
 
   return (
     <DashboardLayout>
-      <h1 className="mb-8 text-4xl font-bold text-white">
-        Settings
-      </h1>
+      <AnimatedPage>
+        <h1 className="mb-8 text-4xl font-bold text-white">
+          Settings
+        </h1>
 
       <div className="rounded-3xl bg-slate-900 p-8">
 
@@ -86,6 +88,7 @@ function Settings() {
         </div>
 
       </div>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

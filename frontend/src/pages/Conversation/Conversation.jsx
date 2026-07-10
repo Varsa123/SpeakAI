@@ -3,6 +3,7 @@ import { FaMicrophone } from "react-icons/fa";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import ChatWindow from "../../components/conversation/ChatWindow";
 import { sendConversation } from "../../services/api";
+import AnimatedPage from "../../components/common/AnimatedPage";
 
 function Conversation() {
   const [messages, setMessages] = useState([
@@ -175,6 +176,7 @@ function Conversation() {
 
   return (
     <DashboardLayout>
+      <AnimatedPage>
       <h1 className="mb-6 text-4xl font-bold text-white">
         AI Conversation
       </h1>
@@ -280,6 +282,7 @@ function Conversation() {
           {loading ? "Thinking..." : "Send"}
         </button>
       </div>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../../services/api";
+import { registerUser } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 function Register() {
   const navigate = useNavigate();
@@ -30,15 +31,17 @@ function Register() {
     setError("");
 
     try {
-      const res = await API.post("/auth/register", form);
+      const res = await registerUser(form);
 
-      login(res.data.user, res.data.token);
+      login(res.user, res.token);
+      toast.success("Account created successfully!");
 
       navigate("/dashboard");
     } catch (err) {
       setError(
         err.response?.data?.message || "Registration failed."
       );
+      toast.error("Registration failed.");
     } finally {
       setLoading(false);
     }

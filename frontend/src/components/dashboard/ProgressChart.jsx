@@ -17,7 +17,7 @@ function ProgressChart({ chart }) {
       </h2>
 
       <div className="h-[280px] sm:h-[350px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 350}>
           <LineChart
             data={chart}
             margin={{

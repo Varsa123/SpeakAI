@@ -4,22 +4,23 @@ import {
   getPracticeHistory,
   downloadReport,
 } from "../../services/api";
+import AnimatedPage from "../../components/common/AnimatedPage";
 
 function History() {
   const [history, setHistory] = useState([]);
 
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
-  const loadHistory = async () => {
+  async function loadHistory() {
     try {
       const data = await getPracticeHistory();
       setHistory(data);
     } catch (err) {
       console.log(err);
     }
-  };
+  }
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   const handleDownload = async (id) => {
     try {
@@ -37,8 +38,7 @@ function History() {
       document.body.appendChild(link);
       link.click();
 
-      link.remove();
-
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.log(err);
@@ -48,87 +48,85 @@ function History() {
 
   return (
     <DashboardLayout>
+      <AnimatedPage>
       <h1 className="mb-8 text-4xl font-bold text-white">
         Practice History
       </h1>
 
       <div className="space-y-6">
-        {history.length === 0 && (
+        {history.length === 0 ? (
           <div className="rounded-xl bg-slate-900 p-8 text-center text-slate-400">
             No practice sessions yet.
           </div>
+        ) : (
+          history.map((item) => (
+            <div
+              key={item._id}
+              className="rounded-2xl bg-slate-900 p-6"
+            >
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <h2 className="text-xl font-bold text-white">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </h2>
+
+                <span className="text-slate-400">
+                  {new Date(item.createdAt).toLocaleTimeString()}
+                </span>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Score title="Grammar" value={item.grammar} />
+                <Score title="Fluency" value={item.fluency} />
+                <Score title="Vocabulary" value={item.vocabulary} />
+                <Score title="Confidence" value={item.confidence} />
+              </div>
+
+              <div className="mt-6">
+                <h3 className="font-semibold text-white">
+                  Transcript
+                </h3>
+
+                <p className="mt-2 whitespace-pre-wrap text-slate-300">
+                  {item.transcript}
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <h3 className="font-semibold text-white">
+                  AI Feedback
+                </h3>
+
+                <ul className="mt-3 space-y-2">
+                  {item.feedback?.map((f, index) => (
+                    <li
+                      key={index}
+                      className="rounded-lg bg-slate-800 p-3 text-slate-300"
+                    >
+                      ✓ {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-6 grid grid-cols-3 gap-4">
+                <Score title="Duration" value={`${item.duration}s`} />
+                <Score title="Words" value={item.words} />
+                <Score title="WPM" value={item.wpm} />
+              </div>
+
+              <div className="mt-8 flex justify-end">
+                <button
+                  onClick={() => handleDownload(item._id)}
+                  className="rounded-xl bg-indigo-600 px-6 py-3 text-white transition hover:bg-indigo-700"
+                >
+                  📄 Download Report
+                </button>
+              </div>
+            </div>
+          ))
         )}
-
-        {history.map((item) => (
-          <div
-            key={item._id}
-            className="rounded-2xl bg-slate-900 p-6"
-          >
-            <div className="flex justify-between">
-              <h2 className="text-xl font-bold text-white">
-                {new Date(item.createdAt).toLocaleDateString()}
-              </h2>
-
-              <span className="text-slate-400">
-                {new Date(item.createdAt).toLocaleTimeString()}
-              </span>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-              <Score title="Grammar" value={item.grammar} />
-              <Score title="Fluency" value={item.fluency} />
-              <Score title="Vocabulary" value={item.vocabulary} />
-              <Score title="Confidence" value={item.confidence} />
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold text-white">
-                Transcript
-              </h3>
-
-              <p className="mt-2 text-slate-300">
-                {item.transcript}
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold text-white">
-                AI Feedback
-              </h3>
-
-              <ul className="mt-3 space-y-2">
-                {item.feedback?.map((f, index) => (
-                  <li
-                    key={index}
-                    className="rounded-lg bg-slate-800 p-3 text-slate-300"
-                  >
-                    ✓ {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Practice Details */}
-
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              <Score title="Duration" value={`${item.duration}s`} />
-              <Score title="Words" value={item.words} />
-              <Score title="WPM" value={item.wpm} />
-            </div>
-
-            {/* Download Button */}
-
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={() => handleDownload(item._id)}
-                className="rounded-xl bg-indigo-600 px-6 py-3 text-white transition hover:bg-indigo-700"
-              >
-                📄 Download Report
-              </button>
-            </div>
-          </div>
-        ))}
       </div>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

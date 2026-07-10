@@ -3,12 +3,14 @@ import PracticeHeader from "../../components/practice/PracticeHeader";
 import Recorder from "../../components/practice/Recorder";
 import ScoreCard from "../../components/practice/ScoreCard";
 import FeedbackCard from "../../components/practice/FeedbackCard";
+import AnimatedPage from "../../components/common/AnimatedPage";
 
 function Practice() {
   return (
     <DashboardLayout>
 
-      <PracticeHeader />
+      <AnimatedPage>
+        <PracticeHeader />
 
       <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
 
@@ -26,7 +28,7 @@ function Practice() {
         </section>
 
       </div>
-
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

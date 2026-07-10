@@ -3,6 +3,9 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import DashboardHero from "../../components/dashboard/DashboardHero";
 import StatsCards from "../../components/dashboard/StatsCards";
 import ProgressChart from "../../components/dashboard/ProgressChart";
+import AnimatedPage from "../../components/common/AnimatedPage";
+import SkeletonCard from "../../components/common/SkeletonCard";
+
 import {
   getDashboard,
   getDailyChallenge,
@@ -11,11 +14,6 @@ import {
 function Dashboard() {
   const [stats, setStats] = useState(null);
   const [challenge, setChallenge] = useState("");
-
-  useEffect(() => {
-    loadDashboard();
-    loadChallenge();
-  }, []);
 
   const loadDashboard = async () => {
     try {
@@ -35,59 +33,75 @@ function Dashboard() {
     }
   };
 
+  useEffect(() => {
+    loadDashboard();
+    loadChallenge();
+  }, []);
+
+  if (!stats) {
   return (
     <DashboardLayout>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
+    </DashboardLayout>
+  );
+}
+
+  return (
+    <DashboardLayout>
+      <AnimatedPage>
       <DashboardHero />
 
       {/* Daily Challenge */}
-
-      <div className="mt-8 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 shadow-xl">
-        <h2 className="text-2xl font-bold text-white">
+      <div className="mt-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-5 shadow-xl md:mt-8 md:p-6">
+        <h2 className="text-xl font-bold text-white md:text-2xl">
           🔥 Today's Speaking Challenge
         </h2>
 
-        <p className="mt-4 text-lg text-indigo-100">
+        <p className="mt-3 text-base text-indigo-100 md:mt-4 md:text-lg">
           {challenge || "Loading today's challenge..."}
         </p>
       </div>
 
-      {stats && (
-        <>
-          <div className="mt-8">
-            <StatsCards stats={stats} />
-          </div>
+      {/* Statistics */}
+      <div className="mt-6 md:mt-8">
+        <StatsCards stats={stats} />
+      </div>
 
-          {/* Extra Statistics */}
+      {/* Extra Statistics */}
+      <div className="mt-6 grid grid-cols-1 gap-5 md:mt-8 md:grid-cols-2">
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl bg-slate-900 p-6 shadow-lg">
-              <h2 className="text-lg text-slate-400">
-                🎤 Total Sessions
-              </h2>
+        <div className="rounded-2xl bg-slate-900 p-5 shadow-lg">
+          <h2 className="text-base text-slate-400 md:text-lg">
+            🎤 Total Sessions
+          </h2>
 
-              <p className="mt-4 text-5xl font-bold text-white">
-                {stats.totalSessions}
-              </p>
-            </div>
+          <p className="mt-3 break-words text-3xl font-bold text-white md:mt-4 md:text-5xl">
+            {stats.totalSessions}
+          </p>
+        </div>
 
-            <div className="rounded-2xl bg-slate-900 p-6 shadow-lg">
-              <h2 className="text-lg text-slate-400">
-                📖 Average Grammar
-              </h2>
+        <div className="rounded-2xl bg-slate-900 p-5 shadow-lg">
+          <h2 className="text-base text-slate-400 md:text-lg">
+            📖 Average Grammar
+          </h2>
 
-              <p className="mt-4 text-5xl font-bold text-green-400">
-                {stats.averageGrammar}%
-              </p>
-            </div>
-          </div>
+          <p className="mt-3 break-words text-3xl font-bold text-green-400 md:mt-4 md:text-5xl">
+            {Number(stats.averageGrammar).toFixed(2)}%
+          </p>
+        </div>
 
-          {/* Progress Chart */}
+      </div>
 
-          <div className="mt-8">
-            <ProgressChart chart={stats.chart} />
-          </div>
-        </>
-      )}
+      {/* Progress Chart */}
+      <div className="mt-6 md:mt-8">
+        <ProgressChart chart={stats.chart} />
+      </div>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

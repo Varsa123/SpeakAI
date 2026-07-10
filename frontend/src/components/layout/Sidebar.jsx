@@ -20,40 +20,44 @@ const menu = [
   { name: "Leaderboard", path: "/leaderboard", icon: <FaTrophy /> },
 ];
 
-function Sidebar() {
+function Sidebar({ closeSidebar }) {
   return (
-    <aside className="w-72 bg-slate-900 border-r border-slate-800 min-h-screen">
+    <aside className="h-screen w-72 bg-slate-900 border-r border-slate-800 shadow-xl">
 
-      <div className="p-8">
+      <div className="border-b border-slate-800 p-6">
 
         <h1 className="text-3xl font-bold text-white">
           🎤 SpeakAI
         </h1>
 
+        <p className="mt-2 text-sm text-slate-400">
+          AI English Speaking Coach
+        </p>
+
       </div>
 
-      <nav className="px-5">
+      <nav className="mt-6 px-4">
 
         {menu.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
+            onClick={() => closeSidebar && closeSidebar()}
             className={({ isActive }) =>
-              `flex items-center gap-4 rounded-xl px-5 py-4 mb-2 transition ${
+              `mb-2 flex items-center gap-4 rounded-xl px-5 py-4 font-medium transition-all duration-300 ${
                 isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:bg-slate-800"
+                  ? "bg-indigo-600 text-white shadow-lg"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
               }`
             }
           >
-            {item.icon}
+            <span className="text-lg">{item.icon}</span>
 
-            {item.name}
+            <span>{item.name}</span>
           </NavLink>
         ))}
 
       </nav>
-
     </aside>
   );
 }

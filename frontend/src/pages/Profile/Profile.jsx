@@ -5,6 +5,7 @@ import {
   updateProfile,
   uploadAvatar,
 } from "../../services/api";
+import AnimatedPage from "../../components/common/AnimatedPage";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -73,9 +74,11 @@ function Profile() {
   if (!profile) {
     return (
       <DashboardLayout>
-        <div className="flex h-[70vh] items-center justify-center">
-          <h2 className="text-2xl text-white">Loading Profile...</h2>
-        </div>
+        <AnimatedPage>
+          <div className="flex h-[70vh] items-center justify-center">
+            <h2 className="text-2xl text-white">Loading Profile...</h2>
+          </div>
+        </AnimatedPage>
       </DashboardLayout>
     );
   }
@@ -84,6 +87,7 @@ function Profile() {
 
   return (
     <DashboardLayout>
+      <AnimatedPage>
       <h1 className="mb-8 text-4xl font-bold text-white">
         My Profile
       </h1>
@@ -292,6 +296,7 @@ function Profile() {
 
 </div>
       </div>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }
